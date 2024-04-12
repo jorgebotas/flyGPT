@@ -1,37 +1,37 @@
-scgpt.model package
+flygpt.model package
 ===================
 
 Submodules
 ----------
 
-scgpt.model.dsbn module
+flygpt.model.dsbn module
 -----------------------
 
-.. automodule:: scgpt.model.dsbn
+.. automodule:: flygpt.model.dsbn
    :members:
    :undoc-members:
    :show-inheritance:
 
-scgpt.model.generation\_model module
+flygpt.model.generation\_model module
 ------------------------------------
 
-.. automodule:: scgpt.model.generation_model
+.. automodule:: flygpt.model.generation_model
    :members:
    :undoc-members:
    :show-inheritance:
 
-scgpt.model.grad\_reverse module
+flygpt.model.grad\_reverse module
 --------------------------------
 
-.. automodule:: scgpt.model.grad_reverse
+.. automodule:: flygpt.model.grad_reverse
    :members:
    :undoc-members:
    :show-inheritance:
 
-scgpt.model.model module
+flygpt.model.model module
 ------------------------
 
-.. automodule:: scgpt.model.model
+.. automodule:: flygpt.model.model
    :members:
    :undoc-members:
    :show-inheritance:
@@ -39,7 +39,7 @@ scgpt.model.model module
 Module contents
 ---------------
 
-.. automodule:: scgpt.model
+.. automodule:: flygpt.model
    :members:
    :undoc-members:
    :show-inheritance:

@@ -1,21 +1,21 @@
-scgpt.tasks package
+flygpt.tasks package
 ===================
 
 Submodules
 ----------
 
-scgpt.tasks.cell\_emb module
+flygpt.tasks.cell\_emb module
 ----------------------------
 
-.. automodule:: scgpt.tasks.cell_emb
+.. automodule:: flygpt.tasks.cell_emb
    :members:
    :undoc-members:
    :show-inheritance:
 
-scgpt.tasks.grn module
+flygpt.tasks.grn module
 ----------------------
 
-.. automodule:: scgpt.tasks.grn
+.. automodule:: flygpt.tasks.grn
    :members:
    :undoc-members:
    :show-inheritance:
@@ -23,7 +23,7 @@ scgpt.tasks.grn module
 Module contents
 ---------------
 
-.. automodule:: scgpt.tasks
+.. automodule:: flygpt.tasks
    :members:
    :undoc-members:
    :show-inheritance:

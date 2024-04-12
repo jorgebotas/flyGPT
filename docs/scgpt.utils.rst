@@ -1,13 +1,13 @@
-scgpt.utils package
+flygpt.utils package
 ===================
 
 Submodules
 ----------
 
-scgpt.utils.util module
+flygpt.utils.util module
 -----------------------
 
-.. automodule:: scgpt.utils.util
+.. automodule:: flygpt.utils.util
    :members:
    :undoc-members:
    :show-inheritance:
@@ -15,7 +15,7 @@ scgpt.utils.util module
 Module contents
 ---------------
 
-.. automodule:: scgpt.utils
+.. automodule:: flygpt.utils
    :members:
    :undoc-members:
    :show-inheritance:

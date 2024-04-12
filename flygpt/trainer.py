@@ -25,6 +25,7 @@ from sklearn.metrics import (
     f1_score
 )
 
+
 def prepare_data(
     tokenized_train,
     tokenized_valid,
@@ -35,7 +36,7 @@ def prepare_data(
     train_celltype_labels=None,
     valid_celltype_labels=None,
     sort_seq_batch=False,
-) -> Tuple[Dict[str, torch.Tensor]]:
+) -> Tuple[Dict[str, torch.Tensor], Dict[str, torch.Tensor]]:
     assert config.task in ["annotation", "integration", "perturb", "multiomic"]
     masked_values_train = random_mask_value(
         tokenized_train["values"],

@@ -1,4 +1,4 @@
-scgpt package
+flygpt package
 =============
 
 Modules
@@ -7,48 +7,48 @@ Modules
 .. toctree::
    :maxdepth: 4
 
-   scgpt.model
-   scgpt.scbank
-   scgpt.tasks
-   scgpt.tokenizer
-   scgpt.utils
+   flygpt.model
+   flygpt.scbank
+   flygpt.tasks
+   flygpt.tokenizer
+   flygpt.utils
 
-scgpt.data\_collator
+flygpt.data\_collator
 ---------------------------
 
-.. automodule:: scgpt.data_collator
+.. automodule:: flygpt.data_collator
    :members:
    :undoc-members:
    :show-inheritance:
 
-scgpt.data\_sampler
+flygpt.data\_sampler
 --------------------------
 
-.. automodule:: scgpt.data_sampler
+.. automodule:: flygpt.data_sampler
    :members:
    :undoc-members:
    :show-inheritance:
 
-scgpt.loss
+flygpt.loss
 -----------------
 
-.. automodule:: scgpt.loss
+.. automodule:: flygpt.loss
    :members:
    :undoc-members:
    :show-inheritance:
 
-scgpt.preprocess
+flygpt.preprocess
 -----------------------
 
-.. automodule:: scgpt.preprocess
+.. automodule:: flygpt.preprocess
    :members:
    :undoc-members:
    :show-inheritance:
 
-scgpt.trainer
+flygpt.trainer
 --------------------
 
-.. automodule:: scgpt.trainer
+.. automodule:: flygpt.trainer
    :members:
    :undoc-members:
    :show-inheritance:

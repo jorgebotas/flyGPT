@@ -1,37 +1,37 @@
-scgpt.scbank package
+flygpt.scbank package
 ====================
 
 Submodules
 ----------
 
-scgpt.scbank.data module
+flygpt.scbank.data module
 ------------------------
 
-.. automodule:: scgpt.scbank.data
+.. automodule:: flygpt.scbank.data
    :members:
    :undoc-members:
    :show-inheritance:
 
-scgpt.scbank.databank module
+flygpt.scbank.databank module
 ----------------------------
 
-.. automodule:: scgpt.scbank.databank
+.. automodule:: flygpt.scbank.databank
    :members:
    :undoc-members:
    :show-inheritance:
 
-scgpt.scbank.monitor module
+flygpt.scbank.monitor module
 ---------------------------
 
-.. automodule:: scgpt.scbank.monitor
+.. automodule:: flygpt.scbank.monitor
    :members:
    :undoc-members:
    :show-inheritance:
 
-scgpt.scbank.setting module
+flygpt.scbank.setting module
 ---------------------------
 
-.. automodule:: scgpt.scbank.setting
+.. automodule:: flygpt.scbank.setting
    :members:
    :undoc-members:
    :show-inheritance:
@@ -39,7 +39,7 @@ scgpt.scbank.setting module
 Module contents
 ---------------
 
-.. automodule:: scgpt.scbank
+.. automodule:: flygpt.scbank
    :members:
    :undoc-members:
    :show-inheritance:

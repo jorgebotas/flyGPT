@@ -1,13 +1,13 @@
-scgpt.tokenizer package
+flygpt.tokenizer package
 =======================
 
 Submodules
 ----------
 
-scgpt.tokenizer.gene\_tokenizer module
+flygpt.tokenizer.gene\_tokenizer module
 --------------------------------------
 
-.. automodule:: scgpt.tokenizer.gene_tokenizer
+.. automodule:: flygpt.tokenizer.gene_tokenizer
    :members:
    :undoc-members:
    :show-inheritance:
@@ -15,7 +15,7 @@ scgpt.tokenizer.gene\_tokenizer module
 Module contents
 ---------------
 
-.. automodule:: scgpt.tokenizer
+.. automodule:: flygpt.tokenizer
    :members:
    :undoc-members:
    :show-inheritance:
