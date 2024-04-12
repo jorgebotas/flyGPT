@@ -1,5 +1,5 @@
 import json
-from dataclasses import dataclass, field, asdict
+from dataclasses import dataclass, field
 from pathlib import Path
 from typing import List, Optional, Union
 from typing_extensions import Self, Literal

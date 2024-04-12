@@ -1,11 +1,10 @@
-import json
 from pathlib import Path
 from dataclasses import InitVar, dataclass, field
-from typing import Any, Dict, List, Mapping, Optional, Tuple, Union
+from typing import Dict, List, Mapping, Optional, Tuple, Union
 from typing_extensions import Self, Literal
 
 import numpy as np
-from scipy.sparse import spmatrix, csr_matrix
+from scipy.sparse import csr_matrix
 from anndata import AnnData
 from datasets import Dataset, load_dataset
 

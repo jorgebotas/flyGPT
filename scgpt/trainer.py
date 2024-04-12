@@ -18,8 +18,12 @@ from scgpt.loss import (
 from scgpt.utils import eval_scib_metrics
 import warnings
 from scipy.sparse import issparse
-from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
-
+from sklearn.metrics import (
+    accuracy_score,
+    precision_score,
+    recall_score,
+    f1_score
+)
 
 def prepare_data(
     tokenized_train,
@@ -45,16 +49,20 @@ def prepare_data(
         mask_value=config.mask_value,
         pad_value=config.pad_value,
     )
+    ratio = (masked_values_train == config.mask_value).sum() /\
+            (masked_values_train - config.pad_value).count_nonzero()
     print(
-        f"random masking at epoch {epoch:3d}, ratio of masked values in train: ",
-        f"{(masked_values_train == config.mask_value).sum() / (masked_values_train - config.pad_value).count_nonzero():.4f}",
+        f"random masking at epoch {epoch:3d}, ",
+        "ratio of masked values in train: ",
+        f"{ratio:.4f}",
     )
 
     input_gene_ids_train, input_gene_ids_valid = (
         tokenized_train["genes"],
         tokenized_valid["genes"],
     )
-    input_values_train, input_values_valid = masked_values_train, masked_values_valid
+    input_values_train, input_values_valid = masked_values_train, \
+                                             masked_values_valid
 
     target_values_train, target_values_valid = (
         tokenized_train["values"],
