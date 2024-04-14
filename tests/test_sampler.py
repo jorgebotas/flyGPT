@@ -3,8 +3,8 @@ from typing import Sequence
 import numpy as np
 import torch
 
-from scgpt.data_sampler import SubsetSequentialSampler, SubsetsBatchSampler
-from scgpt.utils import set_seed
+from flygpt.data_sampler import SubsetSequentialSampler, SubsetsBatchSampler
+from flygpt.utils import set_seed
 
 set_seed(1)
 

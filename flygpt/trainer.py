@@ -9,13 +9,13 @@ import numpy as np
 from anndata import AnnData
 import scanpy as sc
 from typing import List, Tuple, Dict, Optional
-from scgpt.tokenizer import tokenize_and_pad_batch, random_mask_value
-from scgpt import SubsetsBatchSampler
-from scgpt.loss import (
+from flygpt.tokenizer import tokenize_and_pad_batch, random_mask_value
+from flygpt import SubsetsBatchSampler
+from flygpt.loss import (
     masked_relative_error,
     criterion_neg_log_bernoulli,
 )
-from scgpt.utils import eval_scib_metrics
+from flygpt.utils import eval_scib_metrics
 import warnings
 from scipy.sparse import issparse
 from sklearn.metrics import (
@@ -653,7 +653,7 @@ def eval_testdata(
             cell_embeddings, axis=1, keepdims=True
         )
 
-        adata_t.obsm["X_scGPT"] = cell_embeddings
+        adata_t.obsm["X_flyGPT"] = cell_embeddings
 
         results = {}
         try:
@@ -662,7 +662,7 @@ def eval_testdata(
             traceback.print_exc()
             logger.error(e)
 
-        sc.pp.neighbors(adata_t, use_rep="X_scGPT")
+        sc.pp.neighbors(adata_t, use_rep="X_flyGPT")
         sc.tl.umap(adata_t, min_dist=0.3)
         fig = sc.pl.umap(
             adata_t,
@@ -675,7 +675,7 @@ def eval_testdata(
 
         results["batch_umap"] = fig
 
-        sc.pp.neighbors(adata_t, use_rep="X_scGPT")
+        sc.pp.neighbors(adata_t, use_rep="X_flyGPT")
         sc.tl.umap(adata_t, min_dist=0.3)
         fig = sc.pl.umap(
             adata_t,

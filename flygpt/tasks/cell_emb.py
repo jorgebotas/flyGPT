@@ -171,7 +171,7 @@ def embed_data(
         device (Union[str, torch.device]): The device to use. Defaults to "cuda".
         use_fast_transformer (bool): Whether to use flash-attn. Defaults to True.
         return_new_adata (bool): Whether to return a new AnnData object. If False, will
-            add the cell embeddings to a new :attr:`adata.obsm` with key "X_scGPT".
+            add the cell embeddings to a new :attr:`adata.obsm` with key "X_flyGPT".
 
     Returns:
         AnnData: The AnnData object with the cell embeddings.
@@ -276,5 +276,5 @@ def embed_data(
         obs_df = adata.obs[obs_to_save] if obs_to_save is not None else None
         return sc.AnnData(X=cell_embeddings, obs=obs_df, dtype="float32")
 
-    adata.obsm["X_scGPT"] = cell_embeddings
+    adata.obsm["X_flyGPT"] = cell_embeddings
     return adata

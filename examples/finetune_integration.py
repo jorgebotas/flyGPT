@@ -27,20 +27,20 @@ from torchtext._torchtext import (
     Vocab as VocabPybind,
 )
 
-from scgpt.tokenizer.gene_tokenizer import GeneVocab
+from flygpt.tokenizer.gene_tokenizer import GeneVocab
 
 sys.path.append("../")
-import scgpt as scg
-from scgpt.model import TransformerModel, AdversarialDiscriminator
-from scgpt.tokenizer import tokenize_and_pad_batch, random_mask_value
-from scgpt.loss import (
+import flygpt as scg
+from flygpt.model import TransformerModel, AdversarialDiscriminator
+from flygpt.tokenizer import tokenize_and_pad_batch, random_mask_value
+from flygpt.loss import (
     masked_mse_loss,
     masked_relative_error,
     criterion_neg_log_bernoulli,
 )
-from scgpt.preprocess import Preprocessor
-from scgpt import SubsetsBatchSampler
-from scgpt.utils import set_seed, category_str2int, eval_scib_metrics
+from flygpt.preprocess import Preprocessor
+from flygpt import SubsetsBatchSampler
+from flygpt.utils import set_seed, category_str2int, eval_scib_metrics
 
 sc.set_figure_params(figsize=(4, 4))
 os.environ["KMP_WARNINGS"] = "off"
@@ -50,7 +50,7 @@ hyperparameter_defaults = dict(
     seed=42,
     dataset_name="PBMC_10K",
     do_train=True,
-    load_model="save/scGPT_bc",
+    load_model="save/flyGPT_bc",
     mask_ratio=0.4,
     epochs=30,
     n_bins=51,
@@ -73,7 +73,7 @@ hyperparameter_defaults = dict(
 )
 run = wandb.init(
     config=hyperparameter_defaults,
-    project="scGPT",
+    project="flyGPT",
     reinit=True,
     settings=wandb.Settings(start_method="fork"),
 )
@@ -376,7 +376,7 @@ def prepare_dataloader(
 
 
 # %% [markdown]
-# # Create and finetune scGPT
+# # Create and finetune flyGPT
 
 # %%
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -658,7 +658,7 @@ def eval_testdata(
             cell_embeddings, axis=1, keepdims=True
         )
 
-        adata_t.obsm["X_scGPT"] = cell_embeddings
+        adata_t.obsm["X_flyGPT"] = cell_embeddings
 
         results = {}
         try:
@@ -667,7 +667,7 @@ def eval_testdata(
             traceback.print_exc()
             logger.error(e)
 
-        sc.pp.neighbors(adata_t, use_rep="X_scGPT")
+        sc.pp.neighbors(adata_t, use_rep="X_flyGPT")
         sc.tl.umap(adata_t, min_dist=0.3)
         fig = sc.pl.umap(
             adata_t,
@@ -680,7 +680,7 @@ def eval_testdata(
 
         results["batch_umap"] = fig
 
-        sc.pp.neighbors(adata_t, use_rep="X_scGPT")
+        sc.pp.neighbors(adata_t, use_rep="X_flyGPT")
         sc.tl.umap(adata_t, min_dist=0.3)
         fig = sc.pl.umap(
             adata_t,

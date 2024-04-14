@@ -11,7 +11,7 @@ import sys
 
 sys.path.insert(0, os.path.abspath(".."))
 
-project = "scGPT"
+project = "flyGPT"
 copyright = "2023, Wanglab, Haotian Cui"
 author = "Haotian Cui"
 release = "0.2.1"

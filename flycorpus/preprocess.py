@@ -1,1 +1,1 @@
-import scgpt.
+import flygpt.

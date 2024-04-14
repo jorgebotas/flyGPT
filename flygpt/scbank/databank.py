@@ -8,7 +8,7 @@ from scipy.sparse import csr_matrix
 from anndata import AnnData
 from datasets import Dataset, load_dataset
 
-from scgpt.tokenizer import GeneVocab
+from flygpt.tokenizer import GeneVocab
 from .data import DataTable, MetaInfo
 from .setting import Setting
 from . import logger
@@ -18,7 +18,7 @@ from . import logger
 class DataBank:
     """
     The data structure for large-scale single cell data containing multiple studies.
-    See https://github.com/subercui/scGPT-release#the-data-structure-for-large-scale-computing.
+    See https://github.com/subercui/flyGPT-release#the-data-structure-for-large-scale-computing.
     """
 
     meta_info: MetaInfo = None

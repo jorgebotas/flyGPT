@@ -1,4 +1,4 @@
-from scgpt import __version__
+from flygpt import __version__
 
 
 def test_version():

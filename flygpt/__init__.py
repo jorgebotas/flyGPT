@@ -2,7 +2,7 @@ __version__ = "0.2.1"
 import logging
 import sys
 
-logger = logging.getLogger("scGPT")
+logger = logging.getLogger("flyGPT")
 # check if logger has been initialized
 if not logger.hasHandlers() or len(logger.handlers) == 0:
     logger.propagate = False

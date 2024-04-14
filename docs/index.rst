@@ -1,23 +1,23 @@
-.. scGPT documentation master file, created by
+.. flyGPT documentation master file, created by
    sphinx-quickstart on Sun Jul  2 07:16:12 2023.
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to scGPT's documentation!
+Welcome to flyGPT's documentation!
 
 .. image:: https://img.shields.io/badge/docs-latest-brightgreen.svg?style=flat
-    :target: https://scgpt.readthedocs.io/en/latest/?badge=latest
+    :target: https://flygpt.readthedocs.io/en/latest/?badge=latest
     :alt: Documentation Status
 
-.. image:: https://img.shields.io/pypi/v/scgpt.svg
-      :target: https://pypi.python.org/pypi/scgpt
+.. image:: https://img.shields.io/pypi/v/flygpt.svg
+      :target: https://pypi.python.org/pypi/flygpt
       :alt: PyPI version
 
-.. image:: https://img.shields.io/pypi/pyversions/scgpt.svg
-      :target: https://pypi.python.org/pypi/scgpt
+.. image:: https://img.shields.io/pypi/pyversions/flygpt.svg
+      :target: https://pypi.python.org/pypi/flygpt
       :alt: PyPI supported Python versions
 
-Welcome to the documentation for scGPT, a Python package for single-cell multi-omic data analysis using pretrained foundation models. This package is based on the work of scGPT (`GitHub <https://github.com/bowang-lab/scGPT>`_, `preprint <https://www.biorxiv.org/content/10.1101/2023.04.30.538439>`_) and provides a set of functions for data preprocessing, visualization, and model evaluation.
+Welcome to the documentation for flyGPT, a Python package for single-cell multi-omic data analysis using pretrained foundation models. This package is based on the work of flyGPT (`GitHub <https://github.com/bowang-lab/flyGPT>`_, `preprint <https://www.biorxiv.org/content/10.1101/2023.04.30.538439>`_) and provides a set of functions for data preprocessing, visualization, and model evaluation.
 
 =================================
 
@@ -42,7 +42,7 @@ Welcome to the documentation for scGPT, a Python package for single-cell multi-o
    :maxdepth: 2
    :caption: API Reference:
 
-   scgpt
+   flygpt
 
 .. toctree::
    :maxdepth: 2

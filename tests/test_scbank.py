@@ -7,11 +7,11 @@ from scipy.sparse import csr_matrix
 from datasets import Dataset
 from anndata import AnnData
 
-from scgpt.tokenizer import GeneVocab
-from scgpt.scbank import DataBank, DataTable, MetaInfo, Setting
+from flygpt.tokenizer import GeneVocab
+from flygpt.scbank import DataBank, DataTable, MetaInfo, Setting
 
 tmp_dir = tempfile.gettempdir()
-save_path = Path(tmp_dir) / "test_scGPT"
+save_path = Path(tmp_dir) / "test_flyGPT"
 save_path.mkdir(parents=True, exist_ok=True)
 
 
