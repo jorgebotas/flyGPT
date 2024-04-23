@@ -425,7 +425,7 @@ class DataCollator:
         shape = expressions.shape
 
         probability_matrix = torch.full(shape, self.get_mlm_probability())
-        # set padded postion probability to 0
+        # set padded position probability to 0
         probability_matrix[expressions.eq(self.pad_value)] = 0
         if self.keep_first_n_tokens > 0:
             probability_matrix[:, : self.keep_first_n_tokens] = 0

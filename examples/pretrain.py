@@ -1,11 +1,14 @@
 import argparse
 from accelerate import Accelerator
-from datasets import Dataset, load_dataset
+from datasets import Dataset, load_from_disk
 import wandb
 import torch
 import torch.nn as nn
-from sklearn.model_selection import train_test_split
+from torch.utils.data import DataLoader
+from torch.utils.data.distributed import DistributedSampler
+from typing import Tuple
 
+from flygpt import DataCollator
 from flygpt.model import TransformerModel
 from flygpt.tokenizer.gene_tokenizer import GeneVocab, get_default_gene_vocab
 from flygpt.utils import set_seed
@@ -15,7 +18,6 @@ from flygpt.loss import (
 )
 
 
-pad_token = "<pad>"
 hyperparameter_defaults = dict(
     seed=42,
     dataset_name="flycorpus",
@@ -23,6 +25,7 @@ hyperparameter_defaults = dict(
     bin_size=None,  # Number of expression bins within sample
     max_seq_len=1536,  #  max sequence length
     training_task="both",  # gen/pcpt/both
+    generative_training=True,  # set to false if pcpt only
     mask_ratio=0.4,  # ignored if training-tasks set to gen/both
     epochs=30,
     nbins=None,  # 51,
@@ -45,7 +48,11 @@ hyperparameter_defaults = dict(
     pre_norm=False,
     amp=True,  # Automatic Mixed Precision
     eval_ratio=0.03,  # Evaluation ratio for pretraining
-    trunc_by_sample=False  # Truncate seq by sampling instead of slice
+    trunc_by_sampling=False,  # Truncate seq by sampling instead of slice
+    pad_value=-1,
+    mask_value=-2,
+    num_proc=10,
+    pad_token="<pad>",
 )
 run = wandb.init(
     config=hyperparameter_defaults,
@@ -55,7 +62,6 @@ run = wandb.init(
 )
 config = wandb.config
 print(config)
-
 set_seed(config.seed)
 
 
@@ -91,7 +97,31 @@ def parse_args():
     return parser.parse_args()
 
 
-def load_and_tokenize_data(args):
+def get_data_loader(
+        dataset: Dataset, 
+        collator: DataCollator,
+        shuffle: bool = True,
+    ) -> DataLoader:
+    """Get data loader for the given dataset"""
+
+    sampler = DistributedSampler(dataset, shuffle=True)
+
+    return DataLoader(
+        dataset,
+        batch_size=config.batch_size,
+        sampler=sampler,
+        collate_fn=collator,
+        drop_last=False,
+        num_workers=min(config.num_proc, config.batch_size),
+        pin_memory=True,
+        prefetch_factor=4,
+    )
+
+
+def load_and_tokenize_data(
+        args: argparse.Namespace, 
+        vocab: GeneVocab
+    ) -> Tuple[DataLoader, DataLoader]:
     """
     Load and tokenize data
     
@@ -103,12 +133,36 @@ def load_and_tokenize_data(args):
     
     """
 
-    dataset = load_dataset(args.dataset)
+    collator = DataCollator(
+        do_padding=True if config.max_seq_len is not None else False,
+        pad_token_id=vocab[config.pad_token],
+        pad_value=config.pad_value,
+        do_mlm=True,
+        do_binning=True if args.input_style == "binned" else False,
+        mlm_probability=config.mask_ratio,
+        mask_value=config.mask_value,
+        max_length=config.max_seq_len,
+        sampling=config.trunc_by_sampling,
+        data_style=config.training_tasks,
+    )
+
+    dataset = load_from_disk(args.dataset)
+    # Convert to PyTorch tensor
+    dataset = dataset.with_format("torch")
+
+    train, eval = dataset.train_test_split(
+        test_size=config.eval_ratio,
+        shuffle=True
+    ).values()
+
+    train_loader = get_data_loader(train, collator)
+    eval_loader = get_data_loader(eval, collator, shuffle=False)
+
+    return train_loader, eval_loader
 
 
 def init_model(vocab: GeneVocab) -> nn.Module:
     """Initialize the model with the given vocabulary"""
-    pad_value = vocab[pad_token]
 
     return TransformerModel(
         ntoken=len(vocab),
@@ -120,19 +174,16 @@ def init_model(vocab: GeneVocab) -> nn.Module:
         n_cls=1,  # default
         vocab=vocab,
         dropout=config.dropout,
-        pad_token=pad_token,
-        pad_value=pad_value,
+        pad_token=config.pad_token,
+        pad_value=config.pad_value,
         do_mvc=config.GEPC,
         do_dab=False,  # default
         use_batch_labels=False,  # default
         num_batch_labels=None,  # default
-        domain_spec_batchnorm=config.domain_spec_batchnorm,
         input_emb_style="continuous",  # default
         n_input_bins=config.nbins,
-        cell_emb_style="cls",  # default
-        mvc_decoder_style="inner product",  # default
-        ecs_threshold=config.ecs_threshold,
         explicit_zero_prob=config.explicit_zero_prob,
+        use_generative_training=config.generative_training,
         use_fast_transformer=config.fast_transformer,
         fast_transformer_backend="flash",
         pre_norm=config.pre_norm,
@@ -228,7 +279,7 @@ def train(
         outputs = model(
             input_gene_ids,
             input_values,
-            src_key_padding_mask=input_gene_ids.eq(vocab[pad_token]),
+            src_key_padding_mask=input_gene_ids.eq(vocab[config.pad_token]),
             batch_labels=batch_labels,
             MVC=config.GEPC,
             ECS=config.ecs_thres > 0,
@@ -255,17 +306,17 @@ def train(
 def main():
     args = parse_args()
 
-    # Load data
-    train_dataloader, eval_dataloader = load_and_tokenize_data(args)
-
     if args.vocab_file is None:
         vocab = get_default_gene_vocab()
     else:
         # TODO: GeneVocab should have a default built in
         vocab = GeneVocab.from_file(args.vocab_file)
 
-    # TODO: Special tokens shoudl already be in vocab
-    special_tokens = [pad_token, "<cls>", "<eoc>"]
+    # TODO: Special tokens should already be in vocab
+    special_tokens = [config.pad_token, "<cls>", "<eoc>"]
+
+    # Load data
+    train_dataloader, eval_dataloader = load_and_tokenize_data(args, vocab)
 
     # Initialize model
     model = init_model(vocab)

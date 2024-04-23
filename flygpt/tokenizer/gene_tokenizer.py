@@ -253,8 +253,8 @@ def tokenize_batch(
     append_cls: bool = True,
     include_zero_gene: bool = False,
     cls_id: int = -1,
-    mod_type: np.ndarray = None,
-    cls_id_mod_type: int = None,
+    mod_type: Union[np.ndarray, None] = None,
+    cls_id_mod_type: Union[int, None] = None,
 ) -> List[Tuple[Union[torch.Tensor, np.ndarray]]]:
     """
     Tokenize a batch of data. Returns a list of tuple (gene_id, count).
