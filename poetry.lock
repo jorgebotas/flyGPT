@@ -56,7 +56,7 @@ importlib_metadata = {version = ">=0.7", markers = "python_version < \"3.8\""}
 natsort = "*"
 numpy = ">=1.16.5"
 packaging = ">=20"
-pandas = ">=1.1.1"
+pandas = "1.1.1"
 scipy = ">1.4"
 typing_extensions = {version = "*", markers = "python_version < \"3.8\""}
 

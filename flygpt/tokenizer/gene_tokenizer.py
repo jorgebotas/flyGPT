@@ -65,15 +65,15 @@ class GeneVocab(Vocab):
     @classmethod
     def from_file(cls, file_path: Union[Path, str]) -> Self:
         """
-        Load the vocabulary from a file. The file should be either a pickle or a
-        json file of token to index mapping.
+        Load the vocabulary from a file. The file should be either a pickle or 
+        a json file of token to index mapping.
         """
         if isinstance(file_path, str):
             file_path = Path(file_path)
         if file_path.suffix == ".pkl":
             with file_path.open("rb") as f:
                 vocab = pickle.load(f)
-                return cls(vocab)
+                return cls.from_dict(vocab)
         elif file_path.suffix == ".json":
             with file_path.open("r") as f:
                 token2idx = json.load(f)
@@ -252,7 +252,7 @@ def tokenize_batch(
     return_pt: bool = True,
     append_cls: bool = True,
     include_zero_gene: bool = False,
-    cls_id: int = "<cls>",
+    cls_id: int = -1,
     mod_type: np.ndarray = None,
     cls_id_mod_type: int = None,
 ) -> List[Tuple[Union[torch.Tensor, np.ndarray]]]:
@@ -416,6 +416,7 @@ def tokenize_and_pad_batch(
     cls_id = vocab[cls_token]
     if mod_type is not None:
         cls_id_mod_type = vocab_mod[cls_token]
+
     tokenized_data = tokenize_batch(
         data,
         gene_ids,

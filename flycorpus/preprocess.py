@@ -3,6 +3,7 @@ import gc
 import os
 from pathlib import Path
 import scanpy as sc
+from datasets import Dataset, load_dataset
 
 from flygpt.scbank import DataBank
 from flygpt.tokenizer import GeneVocab, get_default_gene_vocab
@@ -22,15 +23,15 @@ def parse_args():
         "from a group of AnnData objects in .loom format"
     )
     parser.add_argument(
-        "--input-dir",
         "-i",
+        "--input-dir",
         type=str,
         required=True,
         help="Directory containing AnnData objects",
     )
     parser.add_argument(
-        "--output-dir",
         "-o",
+        "--output-dir",
         type=str,
         default="./data.scb",
         help="Directory to save scBank data, by default will make a "
@@ -38,8 +39,8 @@ def parse_args():
     )
     # vocabulary
     parser.add_argument(
-        "--vocab-file",
         "-v",
+        "--vocab-file",
         type=str,
         default=None,
         help="File containing the gene vocabulary, default to None. "
@@ -47,6 +48,51 @@ def parse_args():
         "which use FlyBase gene symbols.",
     )
     return parser.parse_args()
+
+
+def loom_to_scbank(file: Path, vocab: GeneVocab, outputdir: Path) -> None:
+    """
+    Convert .loom file to .parquet using scBank
+    """
+    adata = sc.read_loom(file)
+    print(f"Reading data from {file.name}: {adata.shape}")
+    print(adata)
+
+    db = DataBank.from_anndata(
+            adata,
+            vocab=vocab,
+            to=outputdir / f"{file.stem}.scb",
+            main_table_key="X",
+            token_col="var_names",
+            immediate_save=False,
+        )
+
+    db.meta_info.on_disk_format = "parquet"
+    # Sync to disk
+    db.sync()
+
+    # Clean up
+    del adata
+    del db
+    gc.collect()
+
+
+def _prepend_cls(
+        dataset: Dataset, 
+        vocab: GeneVocab,
+        pad_value: int = 0,
+        num_proc: int = 1,
+    ) -> Dataset:
+    dataset = dataset.map(
+        lambda example: {
+            "genes": [vocab["<cls>"]] + example["genes"],
+            "expressions": [pad_value] + example["expressions"],
+        },
+        # batched=True,  # not using since then the map func needs to loop
+        num_proc=num_proc,
+    )
+
+    return dataset
 
 
 def main():
@@ -63,33 +109,36 @@ def main():
         # TODO: GeneVocab should have a default built in
         vocab = GeneVocab.from_file(args.vocab_file)
 
+    print("pad", vocab["<pad>"])
+    print("mask", vocab["<mask>"])
+    print("cls", vocab["<cls>"])
+
     for file in files:
-        adata = sc.read_loom(file, cache=True)
-        print(f"Reading data from {file.name}: {adata.shape}")
+        print(f"Reading {file.name}")
+        loom_to_scbank(file, vocab, outputdir)
 
-        db = DataBank.from_anndata(
-                adata,
-                vocab=vocab,
-                to=outputdir / f"{file.stem}.scb",
-                main_table_key="X",
-                token_col="var_names",
-                immediate_save=False,
-            )
+    parquet_files = [
+        str(parquet) for parquet in outputdir.glob("**/*.parquet")
+    ]
 
-        db.meta_info.on_disk_format = "parquet"
-        # Sync to disk
-        db.sync()
+    # Concatenate all parquet files
+    dataset = load_dataset(
+        "parquet",
+        data_files=parquet_files,
+        split="train",
+    )
 
-        # Clean up
-        del adata
-        del db
-        gc.collect()
+    # Prepend <cls> token to all cell representations
+    dataset = _prepend_cls(
+        dataset=dataset, 
+        vocab=vocab, 
+        pad_value=vocab["<pad>"],
+        num_proc=10
+    )
 
-    # Copy all parquet files to a single directory
-    parquet_dir = outputdir / "datatable.parquet"
-    parquet_dir.mkdir(exist_ok=True)
-    print(f"Copying all parquet files to {parquet_dir}")
-    for file in files:
-        parquet = outputdir / f"{file.stem}.scb" / "X.datatable.parquet"
-        if parquet.exists():
-            os.symlink(parquet, parquet_dir / f"{file.stem}.datatable.parquet")
+    # Save dataset to disk
+    dataset.save_to_disk(outputdir / "cls_prefix_dataset.parquet")
+
+
+if __name__ == "__main__":
+    main()
