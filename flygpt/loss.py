@@ -1,9 +1,6 @@
 import torch
 import torch.nn.functional as F
 
-import evaluate
-metric_mse = evaluate.load("mse")
-
 
 def masked_mse_loss(
     input: torch.Tensor, target: torch.Tensor, mask: torch.Tensor
@@ -14,21 +11,6 @@ def masked_mse_loss(
     mask = mask.float()
     loss = F.mse_loss(input * mask, target * mask, reduction="sum")
     return loss / mask.sum()
-
-
-def masked_mse_metric(
-        predictions: torch.Tensor, 
-        references: torch.Tensor, 
-        mask: torch.Tensor
-    ) -> torch.Tensor:
-    """
-    Compute the masked MSE loss between input and target.
-    Use hugginface evaluate metric to gather information from distributed 
-    training/evaluation
-    """
-    mask = mask.float()
-    metric_mse.add_batch(predictions * mask, references * mask)
-    return metric_mse.compute()
 
 
 def criterion_neg_log_bernoulli(
