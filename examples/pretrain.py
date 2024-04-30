@@ -235,70 +235,6 @@ def init_scheduler(optimizer, train_loader: DataLoader):
         )
 
 
-def compute_loss(
-        outputs: dict, 
-        target_values: torch.Tensor, 
-        masked_positions: torch.Tensor, 
-        celltype_labels: torch.Tensor, 
-        batch_labels: torch.Tensor
-    ):
-    """Compute loss and metrics to log for the model"""
-    loss = 0.0
-    metrics_to_log = {}
-    # Gene expression prediction loss (MSE)
-    if config.GEP:
-        loss_gep = masked_mse_loss(
-            outputs["mlm_output"], target_values, masked_positions
-        )
-        loss += loss_gep
-        metrics_to_log = {"train/gep": loss_gep.item()}
-
-    # Non zero log prob loss (only when predicting gene expression)
-    if config.GEP and config.explicit_zero_prob:
-        loss_zero_log_prob = criterion_neg_log_bernoulli(
-            outputs["mlm_zero_probs"], target_values, masked_positions
-        )
-        loss += loss_zero_log_prob
-        metrics_to_log.update({"train/nzlp": loss_zero_log_prob.item()})
-
-    # Gene expression prediction loss (MSE) for cell embedding
-    if config.GEPC:
-        loss_gepc = masked_mse_loss(
-            outputs["mvc_output"], target_values, masked_positions
-        )
-        loss += loss_gepc
-        metrics_to_log.update({"train/mvc": loss_gepc.item()})
-
-    # Non zero log prob loss (only when predicting cell embedding)
-    if config.GEPC and config.explicit_zero_prob:
-        loss_gepc_zero_log_prob = criterion_neg_log_bernoulli(
-            outputs["mvc_zero_probs"], target_values, masked_positions
-        )
-        loss += loss_gepc_zero_log_prob
-        metrics_to_log.update(
-            {"train/mvc_nzlp": loss_gepc_zero_log_prob.item()}
-        )
-
-    if config.CLS:
-        loss_cls = criterion_cls(outputs["cls_output"], celltype_labels)
-        loss += loss_cls
-
-        metrics_to_log.update({"train/cls": loss_cls.item()})
-
-    if config.ECS:
-        loss_ecs = 10 * outputs["loss_ecs"]
-        loss += loss_ecs
-        metrics_to_log.update({"train/ecs": loss_ecs.item()})
-
-    if config.DAR:
-        # try weighting and separate optimizer
-        loss_dab = criterion_dab(outputs["dab_output"], batch_labels)
-        loss += config.dab_weight * loss_dab
-        metrics_to_log.update({"train/dab": loss_dab.item()})
-
-    return loss, metrics_to_log
-
-
 def update_log_loss(
         total_loss: dict, 
         loss: dict, 
@@ -339,7 +275,6 @@ def update_log_loss(
                        for key in total_loss }
 
     return batch_time
-
 
 
 def train_generative(
@@ -574,7 +509,6 @@ def evaluate_generative(
     positions_to_match = ~gen_key_padding_mask
 
     return output_values, target_values, positions_to_match
-
 
 
 def evaluate_masked(
