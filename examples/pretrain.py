@@ -643,3 +643,8 @@ def main():
                  epoch=epoch)
 
     accelerator.end_training()
+
+if __name__ == "__main__":
+    main()
+    run.finish()
+    print("Training completed successfully!")
