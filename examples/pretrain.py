@@ -177,6 +177,8 @@ def load_and_tokenize_data(
     )
 
     dataset = load_from_disk(args.dataset)
+    print(f"Loaded dataset with {len(dataset)} samples")
+
     # Convert to PyTorch tensor
     dataset = dataset.with_format("torch")
 
