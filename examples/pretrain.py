@@ -29,6 +29,7 @@ hyperparameter_defaults = dict(
     dataset_name="flycorpus",
     seed=42,
     do_train=True,
+    bin_expression=False,  # Binning expression values by cell
     bin_size=None,  # Number of expression bins within sample
     max_seq_len=1536,  #  max sequence length
     training_tasks="both",  # gen/pcpt/both
@@ -162,13 +163,12 @@ def load_and_tokenize_data(
     
     """
 
-    print("Mask ratio", config.mask_ratio)
     collator = DataCollator(
         do_padding=True if config.max_seq_len is not None else False,
         pad_token_id=vocab[config.pad_token],
         pad_value=config.pad_value,
         do_mlm=True,
-        do_binning=True if args.input_style == "binned" else False,
+        do_binning=config.bin_expression,
         mlm_probability=config.mask_ratio,
         mask_value=config.mask_value,
         max_length=config.max_seq_len,
