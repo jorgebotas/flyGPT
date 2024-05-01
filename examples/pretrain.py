@@ -74,7 +74,6 @@ run = wandb.init(
     settings=wandb.Settings(start_method="fork"),
 )
 config = wandb.config
-print(config)
 set_seed(config.seed)
 criterion_cls = nn.CrossEntropyLoss()
 
@@ -82,10 +81,17 @@ criterion_cls = nn.CrossEntropyLoss()
 def update_config():
     """Update config for coherence"""
     if config.training_tasks in ["gen", "both"]:
-        config.mask_ratio = [0.25, 0.5, 0.75]
-        config.generative_training = True
+        config.update({
+            "mask_ratio": [0.25, 0.5, 0.75],
+            "generative_training": True,
+        }, allow_val_change=True)
     else:
-        config.generative_training = False
+        config.update({
+            "generative_training": False,
+        }, allow_val_change=True)
+
+    print(config)
+
 
 
 def parse_args():
