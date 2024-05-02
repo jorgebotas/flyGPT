@@ -10,7 +10,7 @@ import torch.nn as nn
 from torch.utils.data import DataLoader
 from torch.utils.data.distributed import DistributedSampler
 from types import FunctionType
-from typing import Tuple
+from typing import Tuple, Dict
 import wandb
 
 from flygpt import DataCollator
@@ -249,7 +249,7 @@ def update_log_loss(
         batch_time: float,
         scheduler: torch.optim.lr_scheduler.StepLR,
         accelerator: Accelerator
-    ) -> float:
+    ) -> Tuple[Dict[str, torch.Tensor], float ]:
     """Update total loss with the current batch loss"""
     
     def gather(tensor: torch.Tensor):
@@ -268,6 +268,7 @@ def update_log_loss(
             for key, value in total_loss.items()
         }
         ms_per_batch = (time() - batch_time) * 1000 / config.log_interval
+
         accelerator.log({
             **loss_log,
             "lr": scheduler.get_last_lr()[0],
@@ -279,7 +280,7 @@ def update_log_loss(
         total_loss = { key: torch.tensor(0.0, device=accelerator.device)
                        for key in total_loss }
 
-    return batch_time
+    return total_loss, batch_time
 
 
 def train_generative(
@@ -452,9 +453,6 @@ def train(
         # Perform forward pass and compute loss (generative or masked)
         outputs, loss = train_handler(model, batch, vocab, global_step)
 
-        if accelerator.is_main_process:
-            print(loss)
-
         # Backward pass and optimization
         accelerator.backward(loss["loss"])
 
@@ -466,7 +464,7 @@ def train(
         scheduler.step()
 
         # Update total loss and log to wandb
-        batch_time = update_log_loss(
+        total_loss, batch_time = update_log_loss(
             total_loss=total_loss, 
             loss=loss, 
             batch_idx=batch_idx, 
