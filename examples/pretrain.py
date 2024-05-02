@@ -265,20 +265,18 @@ def update_log_loss(
 
     # If batch is a multiple of log interval, log the loss
     if batch_idx % config.log_interval == 0 and batch_idx > 0:
-        # Only gather on main process
-        if accelerator.is_main_process:
-            # Log training loss
-            loss_log = { 
-                f"train_{key}": (gather(value) / config.log_interval).item()
-                for key, value in total_loss.items()
-            }
-            ms_per_batch = (time() - batch_time) * 1000 / config.log_interval
-            accelerator.log({
-                **loss_log,
-                "lr": scheduler.get_last_lr()[0],
-                "train_batch": f"{batch_idx} / {num_batches}",
-                "ms/batch": f"{ms_per_batch:5.2f}"
-            }, step=global_step)
+        # Log training loss
+        loss_log = { 
+            f"train_{key}": (gather(value) / config.log_interval).item()
+            for key, value in total_loss.items()
+        }
+        ms_per_batch = (time() - batch_time) * 1000 / config.log_interval
+        accelerator.log({
+            **loss_log,
+            "lr": scheduler.get_last_lr()[0],
+            "train_batch": batch_idx / num_batches,
+            "ms/batch": ms_per_batch,
+        }, step=global_step)
 
         # Reset total loss
         total_loss = { key: torch.tensor(0.0, device=accelerator.device)
