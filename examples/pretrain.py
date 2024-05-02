@@ -268,7 +268,7 @@ def update_log_loss(
         # Log training loss
         loss_log = { 
             f"train_{key}": (gather(value) / config.log_interval).item()
-            for key, value in total_loss 
+            for key, value in total_loss.items()
         }
         ms_per_batch = (time() - batch_time) * 1000 / config.log_interval
         accelerator.log({
