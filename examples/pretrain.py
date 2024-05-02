@@ -257,9 +257,7 @@ def update_log_loss(
     
     def gather(tensor: torch.Tensor):
         """Gather tensor across all devices"""
-        t = accelerator.gather_for_metrics(tensor)
-        print(t)
-        return t
+        return accelerator.gather_for_metrics(tensor)
 
     # Update total loss tensors
     for key, value in loss.items():
@@ -324,7 +322,8 @@ def train_generative(
         gen_expr_target, 
         positions_to_match
     )
-    losses["mse"] = loss_mse
+    # Clone loss to avoid in-place operation
+    losses["mse"] = loss_mse.detach().clone()
 
 
     if config.GEP:
@@ -392,7 +391,8 @@ def train_masked(
         target_values,
         positions_to_match
     )
-    losses["mse"] = loss_mse
+    # Clone loss to avoid in-place operation
+    losses["mse"] = loss_mse.detach().clone()
 
     if config.CLS:
         target_labels = batch["celltypes"]
