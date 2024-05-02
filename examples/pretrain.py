@@ -479,12 +479,12 @@ def train(
         # Will contain files: "pytorch_model.bin", "optimizer.bin", 
         # "scheduler.bin", and "random_states.pkl"
         # If mixed precision was used, will also save a "scalar.bin" file
-        if (isinstance(config.checkpointing_steps, int) and 
-            global_step % config.checkpointing_steps == 0):
+        if (isinstance(config.checkpoint_steps, int) and 
+            global_step % config.checkpoint_steps == 0):
                 step_dir = f"epoch_{epoch}/step_{global_step}"
                 accelerator.save_state(str(output_dir / step_dir))
             
-    if config.checkpointing_steps == "epoch":
+    if config.checkpoint_steps == "epoch":
         accelerator.save_state(str(output_dir / f"epoch_{epoch}"))
 
 
