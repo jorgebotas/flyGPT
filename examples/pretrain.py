@@ -264,16 +264,16 @@ def update_log_loss(
     if batch_idx % config.log_interval == 0 and batch_idx > 0:
         # Log training loss
         loss_log = { 
-            f"train_{key}": (gather(value) / config.log_interval).item()
+            f"train/{key}": (gather(value) / config.log_interval).item()
             for key, value in total_loss.items()
         }
         ms_per_batch = (time() - batch_time) * 1000 / config.log_interval
 
         accelerator.log({
             **loss_log,
-            "lr": scheduler.get_last_lr()[0],
-            "train_batch": float(batch_idx / num_batches),
-            "ms/batch": float(ms_per_batch),
+            "train/lr": scheduler.get_last_lr()[0],
+            "train/batch": float(batch_idx / num_batches),
+            "train/ms_per_batch": float(ms_per_batch),
         }, step=global_step)
 
         # Reset total loss
@@ -580,8 +580,8 @@ def evaluate(
 
         # Log total mse and mre for the epoch
         accelerator.log({ 
-            "valid/mse": total_mse.item() / len(dataloader), 
-            "valid/mre": total_mre.item() / len(dataloader) 
+            "validation/mse": total_mse.item() / len(dataloader), 
+            "validation/mre": total_mre.item() / len(dataloader) 
         }, epoch)
 
 
