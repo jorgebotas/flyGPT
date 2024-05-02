@@ -279,6 +279,9 @@ def update_log_loss(
         # Reset total loss
         total_loss = { key: torch.tensor(0.0, device=accelerator.device)
                        for key in total_loss }
+        
+        # Reset batch time
+        batch_time = time()
 
     return total_loss, batch_time
 
@@ -491,7 +494,7 @@ def train(
                          dataloader=eval_dataloader,
                          accelerator=accelerator,
                          eval_handler=eval_handler,
-                         epoch=epoch)
+                         global_step=global_step)
             
     if config.checkpoint_steps == "epoch":
         accelerator.save_state(str(output_dir / f"epoch_{epoch}"))
@@ -543,7 +546,7 @@ def evaluate(
         vocab: GeneVocab,
         accelerator: Accelerator,
         eval_handler: FunctionType,
-        epoch: int,
+        global_step: int,
     ) -> None:
     """Evaluate the model for a single epoch"""
     model.eval()
@@ -582,7 +585,7 @@ def evaluate(
         accelerator.log({ 
             "validation/mse": total_mse.item() / len(dataloader), 
             "validation/mre": total_mre.item() / len(dataloader) 
-        }, epoch)
+        }, global_step)
 
 
 def main():
@@ -655,13 +658,8 @@ def main():
               eval_handler=eval_handler,
               epoch=epoch,
               output_dir=Path(args.output_dir) / "training")
-        # Perform model evaluation
-        evaluate(model=model, 
-                 vocab=vocab, 
-                 dataloader=eval_dataloader,
-                 accelerator=accelerator,
-                 eval_handler=eval_handler,
-                 epoch=epoch)
+        
+        accelerator.log({ "epoch": epoch }, epoch)
 
     accelerator.end_training()
 
