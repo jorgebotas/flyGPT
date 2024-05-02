@@ -592,6 +592,12 @@ def main():
     # TODO: Special tokens should already be in vocab
     special_tokens = [config.pad_token, "<cls>", "<eoc>"]
 
+    # Initialize Accelerate Accelerator (multi-gpu training)
+    # Track model metrics with wandb
+    # Do before loading data to inititialize GPU distribution properly
+    accelerator = Accelerator(log_with="wandb", 
+                              mixed_precision="fp16" if config.fp16 else None)
+
     # Load data
     train_dataloader, eval_dataloader = load_and_tokenize_data(args, vocab)
 
@@ -607,10 +613,6 @@ def main():
     # Initialize learning rate scheduler
     scheduler = init_scheduler(optimizer, train_dataloader)
 
-    # Initialize Accelerate Accelerator (multi-gpu training)
-    # Track model metrics with wandb
-    accelerator = Accelerator(log_with="wandb", 
-                              mixed_precision="fp16" if config.fp16 else None)
     # Prepare components for acceleration
     (   model, 
         optimizer, 
@@ -651,6 +653,7 @@ def main():
                  epoch=epoch)
 
     accelerator.end_training()
+
 
 if __name__ == "__main__":
     main()
