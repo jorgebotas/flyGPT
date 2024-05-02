@@ -257,7 +257,9 @@ def update_log_loss(
     
     def gather(tensor: torch.Tensor):
         """Gather tensor across all devices"""
-        return accelerator.gather_for_metrics(tensor)
+        t = accelerator.gather_for_metrics(tensor)
+        print(t)
+        return t
 
     # Update total loss tensors
     for key, value in loss.items():
