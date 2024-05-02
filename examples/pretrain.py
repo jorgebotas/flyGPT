@@ -142,7 +142,7 @@ def get_data_loader(
         sampler=sampler,
         collate_fn=collator,
         drop_last=False,
-        num_workers=min(config.num_proc, config.batch_size),
+        num_workers=1,  # min(config.num_proc, config.batch_size),
         pin_memory=True,
         prefetch_factor=4,
     )
