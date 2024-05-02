@@ -91,9 +91,6 @@ def update_config():
             "generative_training": False,
         }, allow_val_change=True)
 
-    print(config)
-
-
 
 def parse_args():
     parser = argparse.ArgumentParser(
@@ -454,6 +451,9 @@ def train(
         
         # Perform forward pass and compute loss (generative or masked)
         outputs, loss = train_handler(model, batch, vocab, global_step)
+
+        if accelerator.is_main_process:
+            print(loss)
 
         # Backward pass and optimization
         accelerator.backward(loss["loss"])
