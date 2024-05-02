@@ -636,9 +636,13 @@ def main():
 
     accelerator.init_trackers(config.project_name)
 
+    # Define traina dn evaluation handlers (generative or masked)
+    train_handler = (train_generative if config.generative_training 
+                                      else train_masked)
+    eval_handler = (evaluate_generative if config.generative_training 
+                                        else evaluate_masked)
+
     for epoch in range(config.epochs):
-        train_handler = (train_generative if config.generative_training 
-                                          else train_masked)
         # Perform model training
         train(model=model, 
               vocab=vocab, 
@@ -651,9 +655,6 @@ def main():
               eval_handler=eval_handler,
               epoch=epoch,
               output_dir=Path(args.output_dir) / "training")
-
-        eval_handler = (evaluate_generative if config.generative_training 
-                                            else evaluate_masked)
         # Perform model evaluation
         evaluate(model=model, 
                  vocab=vocab, 
