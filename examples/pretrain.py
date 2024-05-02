@@ -272,8 +272,8 @@ def update_log_loss(
         accelerator.log({
             **loss_log,
             "lr": scheduler.get_last_lr()[0],
-            "train_batch": batch_idx / num_batches,
-            "ms/batch": ms_per_batch,
+            "train_batch": float(batch_idx / num_batches),
+            "ms/batch": float(ms_per_batch),
         }, step=global_step)
 
         # Reset total loss
@@ -415,11 +415,13 @@ def train_masked(
 def train(
         model: nn.Module,
         dataloader: torch.utils.data.DataLoader,
+        eval_dataloader: torch.utils.data.DataLoader,
         vocab: GeneVocab,
         optimizer: torch.optim.Optimizer,
         scheduler: torch.optim.lr_scheduler.StepLR,
         accelerator: Accelerator,
         train_handler: FunctionType,
+        eval_handler: FunctionType,
         epoch: int,
         output_dir: Path,
     ):
@@ -483,6 +485,13 @@ def train(
             global_step % config.checkpoint_steps == 0):
                 step_dir = f"epoch_{epoch}/step_{global_step}"
                 accelerator.save_state(str(output_dir / step_dir))
+                # Perform model evaluation
+                evaluate(model=model, 
+                         vocab=vocab, 
+                         dataloader=eval_dataloader,
+                         accelerator=accelerator,
+                         eval_handler=eval_handler,
+                         epoch=epoch)
             
     if config.checkpoint_steps == "epoch":
         accelerator.save_state(str(output_dir / f"epoch_{epoch}"))
@@ -551,24 +560,23 @@ def evaluate(
                 vocab=vocab, 
             )
             
-            # Gather output and target values across all devices
-            output_values, target_values = accelerator.gather_for_metrics(
-                (output_values, target_values)
-            )
-
             mse = masked_mse_loss(
                 output_values, 
                 target_values, 
                 positions_to_match
             )
+
             mre = masked_relative_error(
                 output_values, 
                 target_values, 
                 positions_to_match
             )
 
-            total_mse += mse
-            total_mre += mre
+            # Gather mse and mre across all devices to compute metrics
+            mse, mre = accelerator.gather_for_metrics((mse, mre))
+
+            total_mse += mse.mean()
+            total_mre += mre.mean()
 
         # Log total mse and mre for the epoch
         accelerator.log({ 
@@ -635,10 +643,12 @@ def main():
         train(model=model, 
               vocab=vocab, 
               dataloader=train_dataloader,
+              eval_dataloader=eval_dataloader,
               optimizer=optimizer,
               scheduler=scheduler,
               accelerator=accelerator,
               train_handler=train_handler,
+              eval_handler=eval_handler,
               epoch=epoch,
               output_dir=Path(args.output_dir) / "training")
 
